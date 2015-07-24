@@ -53,7 +53,6 @@ def show_melon(id):
     """
 
     melon = model.Melon.get_by_id(id)
-    print melon
     return render_template("melon_details.html",
                            display_melon=melon)
 
@@ -65,8 +64,23 @@ def shopping_cart():
     # TODO: Display the contents of the shopping cart.
     #   - The cart is a list in session containing melons added
 
-    return render_template("cart.html")
+    melons = {}
+    for value in session['cart']:     
+        new_melon = model.Melon.get_by_id(value)
+        print new_melon
+        print melons
+        if new_melon in melons: 
+            melons[new_melon] += 1
+        else: 
+            print "KLSDNKLBSDLJBS"
+            melons[new_melon] = 1
 
+    melon_price = model.Melon.get_by_id(value)
+
+    return render_template('cart.html',
+                            melons=melons,
+                            quantity=melons[new_melon],
+                            price=melon_price)
 
 @app.route("/add_to_cart/<int:id>")
 def add_to_cart(id):
@@ -79,26 +93,15 @@ def add_to_cart(id):
     # TODO: Finish shopping cart functionality
     #   - use session variables to hold cart list
 
-    if session.get('cart') == None:
-        session['cart'] = []
-        session['cart'].append(id)
+    if session.get('cart', None) == None:
+        our_melon = model.Melon.get_by_id(id)
+        session['cart'] = {id: our_melon.price, 'qty': 1}
     else: 
         session['cart'].append(id)
-
-    melons = []
-    for value in session['cart']:     
-        new_melon = model.Melon.get_by_id(value)
-        melons.append(new_melon)
-
-    price = "placeholder"
-    total = "placeholder"
-    quantity = "placeholder"
-    return render_template('cart.html',
-                            melons=melons,
-                            quantity=quantity,
-                            price = price,
-                            total=total)
-
+    print "**********************************"
+    print session
+    print "**********************************"
+    return redirect('/cart')
 
 @app.route("/login", methods=["GET"])
 def show_login():
